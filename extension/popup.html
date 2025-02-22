@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Job Fraud Detector</title>
+    <style>
+        body {
+            width: 300px;
+            padding: 10px;
+            font-family: Arial, sans-serif;
+        }
+        .result {
+            padding: 10px;
+            margin: 5px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .fraudulent {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        .legitimate {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+        .loading {
+            background-color: #e3f2fd;
+            color: #1565c0;
+        }
+    </style>
+</head>
+<body>
+    <div id="status" class="result loading">Analyzing job posting...</div>
+    <script src="popup.js"></script>
+</body>
+</html> 
