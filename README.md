@@ -31,26 +31,6 @@ A Chrome extension that helps detect potentially fraudulent job postings on Link
 - Pandas
 - NumPy
 
-## Project Structure
-linkedin-job-fraud-detector/
-├── extension/
-│ ├── manifest.json
-│ ├── popup.html
-│ ├── popup.js
-│ ├── content.js
-│ └── images/
-│ ├── icon16.png
-│ ├── icon48.png
-│ ├── icon128.png
-│ └── logo.png
-├── backend/
-│ ├── app.py
-│ └── requirements.txt
-├── model/
-│ └── model.ipynb
-└── README.md
-
-
 ## Installation
 
 ### Prerequisites
@@ -122,10 +102,8 @@ The model is trained on a dataset of legitimate and fraudulent job postings usin
 - Binary classification (legitimate/fraudulent)
 
 Model performance metrics:
-- Accuracy: 98.71%
+- Accuracy: 99.00%
 - Precision: 99.05%
-- Recall: 97.57%
-- F1-Score: 98.31%
 
 ## Contributing
 
@@ -146,6 +124,10 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - FastAPI framework
 - Chrome Extensions documentation
 
-## Contact
+## Coders
 
-David Gu, Tommy, Shangen
+David Gu
+
+Tommy Nguyen
+
+Shang En Sim
