@@ -26,10 +26,24 @@
             background-color: #e3f2fd;
             color: #1565c0;
         }
+        #checkButton {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: none;
+            border-radius: 5px;
+            background-color: #1565c0;
+            color: white;
+            cursor: pointer;
+        }
+        #checkButton:hover {
+            background-color: #1976d2;
+        }
     </style>
 </head>
 <body>
-    <div id="status" class="result loading">Analyzing job posting...</div>
+    <button id="checkButton">Check Job Posting</button>
+    <div id="status" class="result">Click button to analyze job posting</div>
     <script src="popup.js"></script>
 </body>
 </html> 
