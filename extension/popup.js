@@ -16,7 +16,7 @@ function checkJobPosting() {
         if (!isLinkedInJobPage(currentTab.url)) {
             statusElement.textContent = 'Please navigate to a LinkedIn job posting';
             statusElement.classList.remove('loading');
-            statusElement.classList.add('fraudulent');
+            statusElement.classList.add('error');
             return;
         }
 
@@ -33,15 +33,19 @@ function checkJobPosting() {
     });
 }
 
+document.addEventListener('DOMContentLoaded', function() {
+    checkJobPosting();
+});
+
 // When popup opens, set up the button
 document.getElementById('checkButton').addEventListener('click', checkJobPosting);
 
 // Listen for results from content script
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     const statusElement = document.getElementById('status');
+    statusElement.classList.remove('loading');
     
     if (message.type === 'FRAUD_CHECK_RESULT') {
-        statusElement.classList.remove('loading');
         if (message.fraudulent === 1) {
             statusElement.innerHTML = 'Warning: This job posting may be <b>fraudulent</b>!';
             statusElement.classList.add('fraudulent');
@@ -50,8 +54,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             statusElement.classList.add('legitimate');
         }
     } else if (message.type === 'ERROR') {
-        statusElement.classList.remove('loading');
         statusElement.textContent = message.message;
-        statusElement.classList.add('fraudulent');
+        statusElement.classList.add('error');
     }
 });
