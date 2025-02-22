@@ -43,10 +43,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === 'FRAUD_CHECK_RESULT') {
         statusElement.classList.remove('loading');
         if (message.fraudulent === 1) {
-            statusElement.textContent = 'Warning: This job posting may be fraudulent!';
+            statusElement.innerHTML = 'Warning: This job posting may be <b>fraudulent</b>!';
             statusElement.classList.add('fraudulent');
         } else {
-            statusElement.textContent = 'This job posting appears to be legitimate.';
+            statusElement.innerHTML = 'This job posting appears to be <b>legitimate</b>.';
             statusElement.classList.add('legitimate');
         }
     } else if (message.type === 'ERROR') {
