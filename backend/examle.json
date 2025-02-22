@@ -1,0 +1,14 @@
+{
+    "job_title": "Senior Software Engineer, Atlanta, GA",
+    "location": "Atlanta, GA",
+    "salary_range": "$161,000 to $239,000",
+    "job_description": "Write and test product or system development code. Participate in, or lead design reviews with peers and stakeholders to decide amongst available technologies. Review code developed by other developers and provide feedback to ensure best practices (e.g., style guidelines, checking code in, accuracy, testability, efficiency). Triage product or system issues and debug/track/resolve by analyzing the sources of issues and the impact on hardware, network, or service operations and quality.",
+    "job_requirements": "Strong understanding of Python programming language. Strong understanding of JavaScript programming language. Strong understanding of mobile development programming language (like React Native). Two years of experience with Python framework such as Django. Strong problem-solving abilities. Strong ability to work in a team environment. Strong interpersonal skills. Strong knowledge of Git and version control systems. Basic knowledge of machine learning.",
+    "company_name": "Google",
+    "telecommuting": false,
+    "employment_type": "Full-time",
+    "industry": "Software Development",
+    "job_functions": [
+        "Senior Software Engineer (GA)"
+    ]
+}
