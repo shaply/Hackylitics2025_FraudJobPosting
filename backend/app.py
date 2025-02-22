@@ -6,8 +6,21 @@ from lxml import etree
 import minify_html
 from openai import OpenAI
 from pydantic import BaseModel, Field
-from typing import List
+from typing import List, Optional
 import enum
+
+
+class JobData(BaseModel):
+    title: str
+    company: str
+    location: str
+    additional_info: List[str] = Field(..., alias="additionalInfo")
+    description: str
+    company_description: str = Field(..., alias="companyDescription")
+
+
+class JobListing(BaseModel):
+    job_data: JobData = Field(..., alias="jobData")
 
 
 class EmploymentType(str, enum.Enum):
@@ -19,17 +32,12 @@ class EmploymentType(str, enum.Enum):
 
 
 class ExtractJobPosting(BaseModel):
-    job_title: str
-    location_city: str
-    location_state: str
-    location_country: str
-    salary_range: str
-    job_description: str
-    job_requirements: str
-    company_name: str
+    full_job_description: str
+    full_job_requirements: str
     telecommuting: bool
-    employment_type: EmploymentType
     industry: str
+    salary_range_lower: Optional[int]
+    salary_range_upper: Optional[int]
     job_functions: List[str]
 
 
@@ -80,15 +88,27 @@ def clean_html(html: str) -> str:
     return soup
 
 
-def extract_job_posting(html_str: str) -> ExtractJobPosting:
+def extract_job_posting(description: str) -> ExtractJobPosting:
     try:
         completion = client.beta.chat.completions.parse(
             model="deepseek-r1:7b",
             messages=[
-                {"role": "system", "content": "Extract job posting"},
+                {
+                    "role": "system",
+                    "content": (
+                        "You are an AI specialized in extracting structured job postings from text. "
+                        "Analyze the provided job listing and extract key details including the full job description, "
+                        "specific job requirements, whether telecommuting is allowed, the industry, and job functions. "
+                        "Preserve as much detail as possible while ensuring accuracy and clarity."
+                        "Extract the job posting details **exactly** as they appear in the provided text. "
+                        "Do not summarize, rephrase, or provide interpretations. "
+                        "Each field should contain the direct text from the job listing without modification. "
+                        "Preserve the original sentence structure, bullet points, and formatting where applicable."
+                    ),
+                },
                 {
                     "role": "user",
-                    "content": html_str,
+                    "content": description,
                 }
             ],
             response_format=ExtractJobPosting,
@@ -99,21 +119,21 @@ def extract_job_posting(html_str: str) -> ExtractJobPosting:
             return response.parsed
         elif response.refusal:
             print(response.refusal)
+            raise Exception(f"Failed to extract job posting: {response.refusal}")
     except Exception as e:
         print(f"Error in extracting job posting: {e}")
         return None
 
 
 @app.post("/getResponse")
-async def get_response(request: Request):
-    data = await request.json()
-    html = data.get("jobData")
-    cleaned_html = clean_html(html)
+async def get_response(request: JobListing):
+    job_data = request.job_data
 
-    minified = minify_html.minify(str(cleaned_html))
-    print(extract_job_posting(minified).model_dump_json())
-
-    return {"message": "Data received successfully", "data": data}
+    description = job_data.description
+    job_posting = extract_job_posting(description)
+    print(job_data)
+    print(job_posting)
+    return {"message": "Data received successfully", "title": job_data.title}, 200
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=3000)
