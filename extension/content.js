@@ -57,7 +57,7 @@ function checkAndSendJobData() {
 
   // Send data to API
   console.log("Sending job data:", jobData);
-  fetch("http://localhost:3000/getResponse", {
+  fetch("http://localhost:8000/getResponse", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

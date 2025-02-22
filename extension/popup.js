@@ -1,6 +1,6 @@
 // Function to check if we're on a LinkedIn job page
 function isLinkedInJobPage(url) {
-    return url.match(/linkedin\.com\/jobs\/(view|collections)/) !== null;
+    return url.match(/linkedin\.com\/jobs\/(view|collections|search)/) !== null;
 }
 
 // Function to initialize the check
