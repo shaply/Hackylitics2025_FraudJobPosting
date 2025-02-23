@@ -2,6 +2,10 @@
 
 A Chrome extension that helps detect potentially fraudulent job postings on LinkedIn using machine learning. The extension analyzes job posting content in real-time and provides immediate feedback about the legitimacy of the posting.
 
+## Background
+
+Over 14 million people have been scammed by fake job posts within the last year alone, and with the rise of LLMs, the number of fake job posts has increased by 113%. Luckily, there were two extensive data sets on fraudulent job posts, and using these two data sets, we trained an LLM to notice the patterns of fraudulent job posts to help prevent people from applying to them before they release too much about their identity.
+
 ## Features
 
 - Real-time analysis of LinkedIn job postings
