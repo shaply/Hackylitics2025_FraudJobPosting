@@ -3,11 +3,31 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from bs4 import BeautifulSoup, Comment
 from lxml import etree
-import minify_html
 from openai import OpenAI
 from pydantic import BaseModel, Field
 from typing import List, Optional
 import enum
+
+import tensorflow as tf
+from keras._tf_keras.keras.utils import pad_sequences
+import numpy as np
+import pickle
+
+# Limit GPU memory growth
+gpus = tf.config.experimental.list_physical_devices("GPU")
+if gpus:
+    try:
+        for gpu in gpus:
+            tf.config.experimental.set_memory_growth(gpu, True)
+    except RuntimeError as e:
+        print(e)
+
+model = tf.keras.models.load_model("model/job_posting_model.keras")
+
+with open("model/tokenizer.pkl", "rb") as handle:
+    tokenizer = pickle.load(handle)
+
+MAX_SEQUENCE_LENGTH = 200  # Use the same max length as in training
 
 
 class JobData(BaseModel):
@@ -39,6 +59,7 @@ class ExtractJobPosting(BaseModel):
     salary_range_lower: Optional[int]
     salary_range_upper: Optional[int]
     job_functions: List[str]
+    benefits: str
 
 
 client = OpenAI(base_url="http://localhost:11434/v1", api_key="ollama")
@@ -54,38 +75,31 @@ app.add_middleware(
 )
 
 
-def clean_html(html: str) -> str:
-    soup = BeautifulSoup(html, "lxml")
+def predict_job_posting(job_text):
+    """
+    Predict whether a job posting is fake (1) or real (0).
 
-    # Remove comments
-    for comment in soup.find_all(string=lambda text: isinstance(text, Comment)):
-        comment.extract()
+    Args:
+        job_text (str): The job posting text.
 
-    # Remove attributes like aria-*, class, id, style, data-*
-    for tag in soup.find_all(True):
-        attrs = list(tag.attrs.keys())
-        for attr in attrs:
-            if attr.startswith("aria-") or attr in ["class", "id", "style"] or attr.startswith("data-"):
-                del tag[attr]
+    Returns:
+        float: Probability of the job being fraudulent.
+    """
+    # Convert text to sequence
+    sequence = tokenizer.texts_to_sequences([job_text])
 
-    # Remove links but keep the text
-    for a in soup.find_all("a"):
-        a.decompose()
+    # Pad the sequence
+    padded_sequence = pad_sequences(
+        sequence, maxlen=MAX_SEQUENCE_LENGTH, padding="post", truncating="post"
+    )
 
-    # Remove images
-    for img in soup.find_all("img"):
-        img.decompose()
+    # Get prediction
+    prediction = model.predict(padded_sequence)[0][0]  # Get probability score
 
-    # Remove SVG elements
-    for svg in soup.find_all("svg"):
-        svg.decompose()
+    # Convert probability to class label
+    predicted_label = 1 if prediction > 0.5 else 0
 
-    # Collapse unnecessary tags
-    for tag in soup.find_all():
-        if tag.name in ["div", "span", "section", "article"] and not tag.attrs and not tag.contents:
-            tag.decompose()
-
-    return soup
+    return predicted_label, prediction
 
 
 def extract_job_posting(description: str) -> ExtractJobPosting:
@@ -109,7 +123,7 @@ def extract_job_posting(description: str) -> ExtractJobPosting:
                 {
                     "role": "user",
                     "content": description,
-                }
+                },
             ],
             response_format=ExtractJobPosting,
         )
@@ -131,9 +145,28 @@ async def get_response(request: JobListing):
 
     description = job_data.description
     job_posting = extract_job_posting(description)
-    print(job_data)
-    print(job_posting)
-    return {"message": "Data received successfully", "title": job_data.title}, 200
+
+    """
+    Order:
+    title
+    description
+    requirements
+    company_profile
+    telecommuting
+    location
+    salary_range
+    employment_type
+    industry
+    benefits
+    """
+
+    string = f"{job_data.title}{job_posting.full_job_description}{job_posting.full_job_requirements}{job_data.company_description}\
+               {1 if job_posting.telecommuting else 0}{job_data.location}{job_data.additional_info[0]}{job_data.additional_info[1]}\
+               {job_posting.industry}{job_posting.benefits}"
+    result, score = predict_job_posting(string)
+    print(f"result: {result}; score: {score}")
+    return {"fradulent": int(result), "score": float(score)}, 200
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=3000)
