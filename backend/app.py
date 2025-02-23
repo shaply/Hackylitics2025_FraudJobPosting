@@ -1,8 +1,6 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, 
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
-from bs4 import BeautifulSoup, Comment
-from lxml import etree
 from openai import OpenAI
 from pydantic import BaseModel, Field
 from typing import List, Optional
@@ -10,7 +8,6 @@ import enum
 
 import tensorflow as tf
 from keras._tf_keras.keras.utils import pad_sequences
-import numpy as np
 import pickle
 
 # Limit GPU memory growth
