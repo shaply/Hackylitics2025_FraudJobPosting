@@ -1,10 +1,11 @@
-from fastapi import FastAPI, 
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from openai import OpenAI
 from pydantic import BaseModel, Field
 from typing import List, Optional
 import enum
+import random
 
 import tensorflow as tf
 from keras._tf_keras.keras.utils import pad_sequences
@@ -160,9 +161,11 @@ async def get_response(request: JobListing):
     string = f"{job_data.title}{job_posting.full_job_description}{job_posting.full_job_requirements}{job_data.company_description}\
                {1 if job_posting.telecommuting else 0}{job_data.location}{job_data.additional_info[0]}{job_data.additional_info[1]}\
                {job_posting.industry}{job_posting.benefits}"
+    
     result, score = predict_job_posting(string)
     print(f"result: {result}; score: {score}")
-    return {"fradulent": int(result), "score": float(score)}, 200
+
+    return {"fraudulent": int(result), "score": float(score)}, 200
 
 
 if __name__ == "__main__":
