@@ -22,9 +22,9 @@ if gpus:
     except RuntimeError as e:
         print(e)
 
-model = tf.keras.models.load_model("model/job_posting_model.keras")
+model = tf.keras.models.load_model("../model/job_posting_model.keras")
 
-with open("model/tokenizer.pkl", "rb") as handle:
+with open("../model/tokenizer.pkl", "rb") as handle:
     tokenizer = pickle.load(handle)
 
 MAX_SEQUENCE_LENGTH = 200  # Use the same max length as in training
